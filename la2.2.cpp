@@ -133,6 +133,7 @@ Product Product::operator+(const Product& other) const {
 }
 
 // -= 
+
 Product& Product::operator-=(const Product& other) {
     this->name = "выбор " + this->name + " без " + other.name;
     // - 10%
@@ -145,12 +146,13 @@ Product& Product::operator-=(const Product& other) {
     auto it = composition.begin();
     while (it != composition.end()) {
         if (std::find(otherClean.begin(), otherClean.end(), *it) != otherClean.end()) {
-            it = composition.erase(it); // erase возвращает следующий элемент
+            it = composition.erase(it); 
         }
         else {
             ++it;
         }
     }
+    
 
     // добавляем консервант
     composition.push_back("консервант Т1000");
