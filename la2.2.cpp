@@ -34,8 +34,8 @@ public:
 
     // перегрузка
     Product operator+(const Product& other) const; // +
-    Product& operator-=(const Product& other); // -=
-    Product operator-(const Product& other) const;
+    Product& operator-=(const Product& other); // -= 
+    Product operator-(const Product& other) const; // - 
 
     void print() const;
 
@@ -50,7 +50,7 @@ Product::Product() : name("Unknown"), price(0.0), shelfLife(0) {}
 
 // параметризированный конструктор
 Product::Product(const std::string& n, double p, int life, const std::vector<std::string>& comp)
-    : name(n), price(p), shelfLife(life), composition(removeDuplicates(comp)) { 
+    : name(n), price(p), shelfLife(life), composition(removeDuplicates(comp)) {
 }
 
 Product::Product(const Product& other)
@@ -94,7 +94,7 @@ void Product::setName(const std::string& n) { name = n; }
 void Product::setPrice(double p) { price = p; }
 void Product::setShelfLife(int life) { shelfLife = life; }
 void Product::setComposition(const std::vector<std::string>& comp) {
-    composition = removeDuplicates(comp); // Очищаем повторы при установке
+    composition = removeDuplicates(comp); 
 }
 
 // удаление повторов из вектора
@@ -128,9 +128,7 @@ Product Product::operator+(const Product& other) const {
             newComposition.push_back(item);
         }
     }
-
     result.composition = newComposition;
-
     return result;
 }
 
@@ -139,33 +137,37 @@ Product& Product::operator-=(const Product& other) {
     this->name = "выбор " + this->name + " без " + other.name;
     // - 10%
     this->price = this->price * 0.9;
+    // срок1 - 2 дня 
+    this->shelfLife = std::max(0, this->shelfLife - 2);
 
-    // срок1 - 2 дня
-    this->shelfLife = this->shelfLife - 2;
-    if (this->shelfLife < 0) this->shelfLife = 0;
-
-    std::vector<std::string> thisClean = removeDuplicates(this->composition);
     std::vector<std::string> otherClean = removeDuplicates(other.composition);
 
-    // состав1 без состава2 + консервант Т1000
-    std::vector<std::string> newComposition;
-
-    for (const auto& item : thisClean) {
-        if (std::find(otherClean.begin(), otherClean.end(), item) == otherClean.end()) {
-            newComposition.push_back(item);
+    auto it = composition.begin();
+    while (it != composition.end()) {
+        if (std::find(otherClean.begin(), otherClean.end(), *it) != otherClean.end()) {
+            it = composition.erase(it); // erase возвращает следующий элемент
+        }
+        else {
+            ++it;
         }
     }
+
     // добавляем консервант
-    newComposition.push_back("консервант Т1000");
-    this->composition = newComposition;
+    composition.push_back("консервант Т1000");
+
+    composition.erase(
+        std::unique(composition.begin(), composition.end()),
+        composition.end()
+    );
+
     return *this;
 }
 
-// -  -=
+// - 
 Product Product::operator-(const Product& other) const {
-    Product result(*this);
-    result -= other;
-    return result;
+    Product result(*this);  // создаем копию
+    result -= other;        // изменяем копию через оператор -=
+    return result;          // возвращаем новый объект
 }
 
 void Product::print() const {
@@ -208,7 +210,6 @@ int main() {
     product1.print();
     std::cout << std::endl;
 
-    // Создаем второй товар
     std::vector<std::string> comp2 = { "а", "м", "н", "н" };
     Product product2("Б", 100, 30, comp2);
     product2.print();
@@ -222,30 +223,35 @@ int main() {
     std::cout << product3 << std::endl;
 
 
-    //  - и -=
+    //  - 
     std::cout << "--- - вычитание - ---" << std::endl;
     Product product4 = product1 - product2;
-    std::cout << "Результат вычитания:" << std::endl;
+    std::cout << "Результат вычитания (product1 - product2):" << std::endl;
     product4.print();
     std::cout << std::endl;
 
     //  -=
     std::cout << "---   -=    ---" << std::endl;
-    Product product5 = product1; 
+    Product product5 = product1;
     std::cout << "Исходный товар для -=: " << product5 << std::endl;
     product5 -= product2;
-    std::cout << "После product5 -= product2:" << std::endl;
+    std::cout << "После product5 -= product2 (изменяем product5):" << std::endl;
     product5.print();
     std::cout << std::endl;
 
+    std::cout << "--- Проверка ---" << std::endl;
+    std::cout << "product1 (не изменился после operator-):" << std::endl;
+    product1.print();
+    std::cout << std::endl;
+
     std::cout << "--- копирование ---" << std::endl;
-    Product product6 = product3; 
+    Product product6 = product3;
     std::cout << "Скопированный товар: " << product6 << std::endl;
     std::cout << std::endl;
 
     std::cout << "--- Оператор присваивания ---" << std::endl;
     Product product7;
-    product7 = product4; 
+    product7 = product4;
     std::cout << "Присвоенный товар: " << product7 << std::endl;
     std::cout << std::endl;
 
