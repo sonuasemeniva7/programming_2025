@@ -5,11 +5,6 @@
 #include <QDir>
 #include <QRandomGenerator>
 #include <QFile>
-
-// ВЫБЕРИТЕ РЕЖИМ КАРТИНОК:
-// 1 - статичная (default.jpg)
-// 2 - рандомная из папки img_res
-// 3 - уникальная для каждого (img_res/0.jpg, img_res/1.jpg...)
 #define IMAGE_MODE 2
 
 Form::Form(Person* p, int idx, QWidget* parent)
